@@ -23,14 +23,14 @@ iPhone6Keyboard.create = ->
         height: props.height, width: props.width, y: props.screenHeight
         image: "modules/iphone6Keyboard.jpg"
 
-    keyboard.states.animationOptions = {
+    keyboard.states.animationOptions =
         # TODO: Mimic the actual timing & curve
-        time: props.keyboardSpeed, curve: "ease-in-out"
-    }
+        time: props.keyboardSpeed
+        curve: "ease-in-out"
+    
 
-    keyboard.states.add({
-        show: { y: props.screenHeight - props.height }
-    })
+    keyboard.states.show =
+        y: props.screenHeight - props.height
 
 
 iPhone6Keyboard.keyPress = (letter) ->
@@ -47,24 +47,28 @@ iPhone6Keyboard.keyPress = (letter) ->
     bDelay = 0.1
     bTime = 0.25
 
-    animationA = new Animation({
-        layer: overlay
-        properties: { opacity: 1 }
-        time:   aTime
-        curve:  "linear"
-    })
+    animationA = new Animation overlay,
+        opacity: 1
+        options:
+            time:   aTime
+            curve:  "linear"
+    
 
-    animationB = new Animation({
-        layer: overlay
-        properties: { opacity: 0 }
-        delay:  bDelay
-        time:   bTime
-        curve:  "linear"
-    })
+    animationB = new Animation overlay,
+        opacity: 0
+        options:
+            delay:  bDelay
+            time:   bTime
+            curve:  "linear"
 
-    animationA.on(Events.AnimationEnd, animationB.start)
+    animationA.on Events.AnimationEnd, ->
+        animationB.start()
+        
     delay = aTime + bDelay + bTime
-    animationB.on(Events.AnimationEnd, delayDestroy(delay, overlay))
+    
+    animationB.on Events.AnimationEnd, ->
+        delayDestroy(delay, overlay)
+        
     animationA.start()
 
 
@@ -75,17 +79,17 @@ delayDestroy = (delay, layer) ->
 
 iPhone6Keyboard.show = (immediate = false) ->
     if immediate
-        keyboard.states.switchInstant("show")
+        keyboard.stateSwitch("show")
     else
-        keyboard.states.switch("show")
+        keyboard.animate("show")
     keyboardUp = true
 
 
 iPhone6Keyboard.hide = (immediate = true) ->
     if immediate
-        keyboard.states.switchInstant("default")
+        keyboard.stateSwitch("default")
     else
-        keyboard.states.switch("default")
+        keyboard.animate("default")
     keyboardUp = false
 
 
